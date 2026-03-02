@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cello Maestro V88 - Loading Recovery</title>
+    <title>Cello Maestro V89 - Ultimate Real Sound</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         :root { --gold: #c5a059; --pink: #ff85c0; --pearl: #ffffff; --soft-pink: #ffeef4; }
@@ -29,8 +29,7 @@
         .lv-하 { background: #b7e4c7; } .lv-중 { background: #ade8f4; } .lv-상 { background: #fca311; }
 
         .btn { width: 100%; padding: 22px; border-radius: 60px; border: none; font-size: 20px; font-weight: 900; background: var(--gold); color: #fff; cursor: pointer; pointer-events: auto; box-shadow: 0 8px 25px rgba(197, 160, 89, 0.3); transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
-        .btn:disabled { opacity: 0.6; cursor: wait; background: #d1c1a5; }
+        .btn:disabled { opacity: 0.6; cursor: wait; }
         
         #game-ui { display: none; height: 100%; width: 100%; position: relative; }
         #heart-container { position: absolute; top: 65px; left: 25px; display: flex; gap: 4px; }
@@ -45,9 +44,9 @@
 
 <div class="ui-layer">
     <div id="lobby">
-        <h1>🎻 Cello Live Concert ✨</h1>
+        <h1>🎻 Hauser Live Concert ✨</h1>
         <div id="song-list"></div>
-        <button id="start-btn" class="btn" disabled>조율 중... (0%)</button>
+        <button id="start-btn" class="btn">입장 준비 중...</button>
     </div>
 
     <div id="game-ui">
@@ -64,28 +63,28 @@
 </div>
 
 <script>
-    // 🎻 20곡 리얼 스코어 아카이브
+    // 🎻 소희님 전용 20곡 리얼 첼로 아카이브 (구간 반복 없음)
     const songs = [
-        { t: "Bach: Cello Suite No.1 Prelude", lv: "중", p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,A3,G3,A3,E3,C3,E3,A3,G3,A3,E3,F#3,D3,A2,D3,F#3,A3,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,D4,G4,F#4,G4,D4,B3,G3,E3,B3,G4,F#4,G4,B3,E3,B3,G4,F#4,G4,B3,C#3,A#3,E4,D#4,E4,A#3,C#3,A#3,E4,D#4,E4,A#3,D3,B3,F#4,E4,F#4,B3,D3,B3,F#4,E4,F#4,B3,G2,D3,B3,A3,B3,D3,G2", time: 200 },
-        { t: "Saint-Saëns: The Swan", lv: "하", p: "G2,B2,D3,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,A2,G2,G2,B2,D3,G3,F#3,G3,A3,B3,A3,G3,E3,D3,B2,G2,B2,D3,G3,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,A2,B2,D3,A2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,D3,E3,G3,D3,C3,B2,A2,G2,D3,G3,B3,D4,C4,B3,A3,G3,B2,G2", time: 180 },
-        { t: "Elgar: Cello Concerto No.1", lv: "상", p: "E2,B2,E3,F#3,G3,E2,B2,E3,F#3,G3,A3,B3,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,A3,B3,E4,D#4,E4,B3,G3,E3,B2,E2,B2,E3,F#3,G3,A3,B3,C4,D4,E4,D4,C4,B3,A3,G3,F#3,E3,F#3,G3,A3,B3,C4,A3,F#3,D3,B2,G2,E2,B1,E1,B1,E2,F#2,G2,B2,E3,F#3,G3,B3,E4", time: 210 },
-        { t: "Bruch: Kol Nidrei", lv: "상", p: "D2,A2,D3,F3,E3,D3,C#3,D3,A2,Bb2,A2,G2,F2,G2,D2,F2,E2,D2,C#2,D2,A1,D2,F2,A2,D3,F3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,G3,A3,Bb3,C4,D4,E4,F4,E4,D4,C#4,D4,A3,Bb3,A3,G3,F3,E3,D3,C3,Bb2,A2,G2,F2,E2,D2,A1,D1,A1,D2,F2,A2,D3,F3,A3", time: 220 },
-        { t: "Dvořák: Cello Concerto", lv: "상", p: "B2,E3,F#3,G3,A3,B3,E4,D4,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,B2,E3,F#3,G3,A3,B3,E4,F#4,G4,F#4,E4,D4,C4,B3,A3,G3,F#3,E3,B2,G2,E2,D2,B1,E2,F#2,G2,A2,B2,E3,D3,C3,B2,A2,G2,F#2,E2,B1,E1,B1,E2", time: 200 },
-        { t: "Fauré: Elegie", lv: "상", p: "C2,G2,C3,Eb3,D3,C3,B2,C3,G2,Ab2,G2,F2,Eb2,F2,C2,Eb2,D2,C2,B1,C2,G1,C2,Eb2,G2,C3,Eb3,G3,F3,Eb3,D3,C3,B2,C3,D3,Eb3,F3,G3,Ab3,Bb3,C4,D4,Eb4,D4,C4,B3,C4,G3,Ab3,G3,F3,Eb3,D3,C3,G2,C2,G1,C1,G1,C2", time: 210 },
-        { t: "Rachmaninoff: Vocalise", lv: "하", p: "C#2,D2,C#2,B1,A1,B1,C#2,E2,A2,G#2,F#2,E2,D2,C#2,B1,A1,G#1,A1,B1,C#2,D2,E2,F#2,G#2,A2,B2,C#3,B2,A2,G#2,F#2,E2,D2,C#2,D2,E2,F#2,D2,B1,A1,G#1,A1,B1,C#2,A1,E2,A2,C#3,E3,C#3,A2,E2,A1,E1,A1", time: 190 },
-        { t: "Bach: Cello Suite No.2 Prelude", lv: "상", p: "D2,F2,A2,D3,F3,E3,D3,C#3,D3,A2,Bb2,A2,G2,F2,G2,D2,F2,E2,D2,C#2,D2,A1,D2,F2,A2,D3,F3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,G3,A3,Bb3,C4,A3,G3,F3,E3,D3,C3,B2,C3,D3,E3,F3,G3,A3,Bb3,A3,G3,F3,E3,D3,A2,D2", time: 180 },
-        { t: "Schubert: Arpeggione", lv: "상", p: "A2,C3,E3,A3,G3,F3,E3,D3,C3,B2,A2,G#2,A2,B2,C3,A2,D3,F3,A3,D4,C4,Bb3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,D3,A2,C3,E3,A3,G3,F3,E3,D3,C3,B2,A2,G#2,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4,B3,A3,G3,F3,E3,D3,A2,E2,A1", time: 200 },
-        { t: "Bruch: Canzone", lv: "중", p: "B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,B2,E3,G3,B3,E4,D4,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,E3,B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,E3,F#3,G3,A3,B3,C#4,D4,C#4,B3", time: 180 },
-        { t: "Tchaikovsky: Pezzo capriccioso", lv: "상", p: "B1,E2,G2,B2,A2,G2,F#2,E2,D#2,E2,F#2,G2,A2,B2,C3,B2,A2,G2,F#2,E2,B1,E2,G2,B2,A2,G2,F#2,E2,D#2,E2,F#2,G2,B2,D3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,B1,A1,G1,F#1,E1,B0,E1", time: 195 },
-        { t: "Popper: Serenade", lv: "하", p: "G2,D3,G3,B3,A3,G3,F#3,G3,A3,D3,G2,D3,G3,B3,A3,G3,F#3,G3,A3,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,A3,G3,F#3,G3,A3,D3,G2,B2,D3,G3,B3,D4,C4,B3,A3,G3,F#3,G3,A3,G3,D3,G2", time: 160 },
-        { t: "Piazzolla: Libertango", lv: "상", p: "A2,B2,C3,B2,A2,B2,C3,B2,A2,B2,C3,B2,A2,G2,F2,E2,F2,G2,A2,G2,F2,G2,A2,G2,F2,E2,D2,C2,D2,E2,F2,E2,D2,E2,F2,E2,D2,E2,F2,G2,A2,B2,C3,D3,E3,F3,G3,A3,G3,F3,E3,D3,C3,B2,A2,E2,A1", time: 170 },
-        { t: "Massenet: Meditation", lv: "하", p: "D3,F#3,A3,D4,F#4,E4,D4,C#4,B3,A3,B3,C#4,D4,F#3,G3,A3,D3,F#3,A3,D4,F#4,A4,G4,F#4,E4,D4,C#4,D4,E4,A3,D4,F#4,A4,D5,C#5,B4,A4,G4,F#4,E4,D4,F#4,E4,D4,A3,F#3,D3,A2,D2,A1,D1", time: 190 },
+        { t: "Bach: Cello Suite No.1 Prelude", lv: "중", p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,A3,G3,A3,E3,C3,E3,A3,G3,A3,E3,F#3,D3,A2,D3,F#3,A3,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,D4,G4,F#4,G4,D4,B3,G3,E3,B3,G4,F#4,G4,B3,E3,B3,G4,F#4,G4,B3,C#3,A#3,E4,D#4,E4,A#3,C#3,A#3,E4,D#4,E4,A#3,D3,B3,F#4,E4,F#4,B3,D3,B3,F#4,E4,F#4,B3,G2,D3,B3,A3,B3,D3", time: 200 },
+        { t: "Saint-Saëns: The Swan", lv: "하", p: "G2,B2,D3,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,A2,G2,G2,B2,D3,G3,F#3,G3,A3,B3,A3,G3,E3,D3,B2,G2,B2,D3,G3,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,A2,B2,D3,A2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,D3,E3,G3,D3,C3,B2,A2,G2,D3,G3,B3", time: 180 },
+        { t: "Elgar: Cello Concerto No.1", lv: "상", p: "E2,B2,E3,F#3,G3,E2,B2,E3,F#3,G3,A3,B3,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,A3,B3,E4,D#4,E4,B3,G3,E3,B2,E2,B2,E3,F#3,G3,A3,B3,C4,D4,E4,D4,C4,B3,A3,G3,F#3,E3,F#3,G3,A3,B3,C4,A3,F#3,D3,B2,G2,E2", time: 210 },
+        { t: "Bruch: Kol Nidrei", lv: "상", p: "D2,A2,D3,F3,E3,D3,C#3,D3,A2,Bb2,A2,G2,F2,G2,D2,F2,E2,D2,C#2,D2,A1,D2,F2,A2,D3,F3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,G3,A3,Bb3,C4,D4,E4,F4,E4,D4,C#4,D4,A3,Bb3,A3,G3,F3,E3,D3,C3", time: 220 },
+        { t: "Dvořák: Cello Concerto", lv: "상", p: "B2,E3,F#3,G3,A3,B3,E4,D4,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,B2,E3,F#3,G3,A3,B3,E4,F#4,G4,F#4,E4,D4,C4,B3,A3,G3,F#3,E3,B2,G2,E2,D2,B1,E2,F#2,G2,A2,B2,E3,D3,C3,B2,A2,G2", time: 200 },
+        { t: "Fauré: Elegie", lv: "상", p: "C2,G2,C3,Eb3,D3,C3,B2,C3,G2,Ab2,G2,F2,Eb2,F2,C2,Eb2,D2,C2,B1,C2,G1,C2,Eb2,G2,C3,Eb3,G3,F3,Eb3,D3,C3,B2,C3,D3,Eb3,F3,G3,Ab3,Bb3,C4,D4,Eb4,D4,C4,B3,C4,G3,Ab3,G3,F3,Eb3,D3,C3", time: 210 },
+        { t: "Rachmaninoff: Vocalise", lv: "하", p: "C#2,D2,C#2,B1,A1,B1,C#2,E2,A2,G#2,F#2,E2,D2,C#2,B1,A1,G#1,A1,B1,C#2,D2,E2,F#2,G#2,A2,B2,C#3,B2,A2,G#2,F#2,E2,D2,C#2,D2,E2,F#2,D2,B1,A1,G#1,A1,B1,C#2,A1,E2,A2,C#3,E3,C#3,A2", time: 190 },
+        { t: "Bach: Cello Suite No.2 Prelude", lv: "상", p: "D2,F2,A2,D3,F3,E3,D3,C#3,D3,A2,Bb2,A2,G2,F2,G2,D2,F2,E2,D2,C#2,D2,A1,D2,F2,A2,D3,F3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,G3,A3,Bb3,C4,A3,G3,F3,E3,D3,C3,B2,C3,D3,E3,F3,G3,A3,Bb3,A3,G3", time: 180 },
+        { t: "Schubert: Arpeggione", lv: "상", p: "A2,C3,E3,A3,G3,F3,E3,D3,C3,B2,A2,G#2,A2,B2,C3,A2,D3,F3,A3,D4,C4,Bb3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,D3,A2,C3,E3,A3,G3,F3,E3,D3,C3,B2,A2,G#2,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4,B3,A3", time: 200 },
+        { t: "Bruch: Canzone", lv: "중", p: "B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,B2,E3,G3,B3,E4,D4,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,E3,B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,E3,F#3,G3,A3,B3", time: 180 },
+        { t: "Tchaikovsky: Pezzo capriccioso", lv: "상", p: "B1,E2,G2,B2,A2,G2,F#2,E2,D#2,E2,F#2,G2,A2,B2,C3,B2,A2,G2,F#2,E2,B1,E2,G2,B2,A2,G2,F#2,E2,D#2,E2,F#2,G2,B2,D3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,B1,A1,G1,F#1,E1", time: 195 },
+        { t: "Popper: Serenade", lv: "하", p: "G2,D3,G3,B3,A3,G3,F#3,G3,A3,D3,G2,D3,G3,B3,A3,G3,F#3,G3,A3,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,A3,G3,F#3,G3,A3,D3,G2,B2,D3,G3,B3,D4,C4,B3,A3,G3,F#3,G3", time: 160 },
+        { t: "Piazzolla: Libertango", lv: "상", p: "A2,B2,C3,B2,A2,B2,C3,B2,A2,B2,C3,B2,A2,G2,F2,E2,F2,G2,A2,G2,F2,G2,A2,G2,F2,E2,D2,C2,D2,E2,F2,E2,D2,E2,F2,E2,D2,E2,F2,G2,A2,B2,C3,D3,E3,F3,G3,A3,G3,F3,E3,D3,C3,B2,A2", time: 170 },
+        { t: "Massenet: Meditation", lv: "하", p: "D3,F#3,A3,D4,F#4,E4,D4,C#4,B3,A3,B3,C#4,D4,F#3,G3,A3,D3,F#3,A3,D4,F#4,A4,G4,F#4,E4,D4,C#4,D4,E4,A3,D4,F#4,A4,D5,C#5,B4,A4,G4,F#4,E4,D4,F#4,E4,D4,A3,F#3,D3,A2,D2", time: 190 },
         { t: "Glazunov: Minstrel's Song", lv: "중", p: "F#2,B2,D3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,F#2,B2,D3,F#3,E3,D3,C#3,B2,A#2,B2,D3,F3,Bb3,A3,G3,F3,E3,D3,C#3,D3,E3,A2,D3,F3,A3,D4,C4,Bb3,A3,G3,F3,E3,D3,A2,D2", time: 185 },
-        { t: "Bach: Cello Suite No.3 Prelude", lv: "중", p: "C3,G2,C2,E2,G2,C3,E3,G3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,B1,A1,G1,C2,E2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,G3,E3,C3,G2,E2,C2,G1,E1,C2,E2,G2,C3,E3,G3,C4,G3,E3,C3,G2,C2", time: 180 },
+        { t: "Bach: Cello Suite No.3 Prelude", lv: "중", p: "C3,G2,C2,E2,G2,C3,E3,G3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,B1,A1,G1,C2,E2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,G3,E3,C3,G2,E2,C2,G1,E1,C2,E2,G2,C3,E3,G3,C4,G3,E3", time: 180 },
         { t: "Haydn: Cello Concerto", lv: "하", p: "C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,Bb2,A2,G2,F2,E2,D2,C2,G2,B2,D3,G3,F3,E3,D3,C3,E3,G3,C4,B3,C4,D4,C4,B3,A3,G3,F3,E3,D3,C3,G2,E2,C2,G1,C1", time: 175 },
-        { t: "Hauser: Adagio", lv: "상", p: "G2,A2,Bb2,C3,D3,Eb3,F3,G3,F3,Eb3,D3,C3,Bb2,A2,G2,F#2,G2,A2,Bb2,C3,D3,Eb3,F3,G3,A3,Bb3,C4,Bb3,A3,G3,F3,Eb3,D3,C3,Bb2,A2,G2,D2,Bb1,G1,D1,G1,Bb1,D2,G2,A2,Bb2,G2,D2,B1,G1", time: 195 },
-        { t: "Beethoven: Cello Sonata No.3", lv: "상", p: "A2,E3,A3,C4,B3,A3,G#3,A3,B3,E2,A2,E3,A3,C4,B3,A3,G#3,A3,B3,C4,D4,E4,D4,C4,B3,A3,G#3,F#3,E3,D3,C3,B2,A2,E3,A3,B3,C4,D4,E4,F4,E4,D4,C4,B3,A3,E3,A2,E2,A2", time: 185 },
-        { t: "Popper: Hungarian Rhapsody", lv: "상", p: "D2,A2,D3,F3,A3,D4,C#4,D4,E4,D4,A3,F3,D3,A2,D2,E2,F2,G2,A2,Bb2,C3,D3,Eb3,D3,C3,Bb2,A2,G2,F2,E2,D2,A1,D2,F2,A2,D3,F3,A3,D4,E4,F4,G4,F4,E4,D4,C#4,D4,A3,F3,D3,A2,D2", time: 190 }
+        { t: "Hauser: Adagio", lv: "상", p: "G2,A2,Bb2,C3,D3,Eb3,F3,G3,F3,Eb3,D3,C3,Bb2,A2,G2,F#2,G2,A2,Bb2,C3,D3,Eb3,F3,G3,A3,Bb3,C4,Bb3,A3,G3,F3,Eb3,D3,C3,Bb2,A2,G2,D2,Bb1,G1,D1,G1,Bb1,D2,G2,A2,Bb2,G2", time: 195 },
+        { t: "Beethoven: Cello Sonata No.3", lv: "상", p: "A2,E3,A3,C4,B3,A3,G#3,A3,B3,E2,A2,E3,A3,C4,B3,A3,G#3,A3,B3,C4,D4,E4,D4,C4,B3,A3,G#3,F#3,E3,D3,C3,B2,A2,E3,A3,B3,C4,D4,E4,F4,E4,D4,C4,B3,A3,E3,A2,E2", time: 185 },
+        { t: "Popper: Hungarian Rhapsody", lv: "상", p: "D2,A2,D3,F3,A3,D4,C#4,D4,E4,D4,A3,F3,D3,A2,D2,E2,F2,G2,A2,Bb2,C3,D3,Eb3,D3,C3,Bb2,A2,G2,F2,E2,D2,A1,D2,F2,A2,D3,F3,A3,D4,E4,F4,G4,F4,E4,D4,C#4,D4,A3,F3,D3", time: 190 }
     ];
 
     const canvas = document.getElementById('gameCanvas');
@@ -111,13 +110,13 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // 🎻 [V87] 라이브 첼로 엔진 - 에코 제거 및 촘촘한 샘플링
-    const eq = new Tone.EQ3({ low: 10, mid: 2, high: 2 }).toDestination(); 
+    // 🎻 [V89 핵심] 라이브 첼로 엔진 - 웅웅거림 없는 광대역 사운드
+    const eq = new Tone.EQ3({ low: 10, mid: 2, high: 1 }).toDestination(); 
 
     cello = new Tone.Sampler({
         urls: { 
-            "C2": "C2.mp3", "C#2": "Cs2.mp3", "D2": "D2.mp3", "Eb2": "Ds2.mp3", "E2": "E2.mp3", "F2": "F2.mp3", "F#2": "Fs2.mp3", "G2": "G2.mp3", "Ab2": "Gs2.mp3", "A2": "A2.mp3", "Bb2": "As2.mp3", "B2": "B2.mp3",
-            "C3": "C3.mp3", "C#3": "Cs3.mp3", "D3": "D3.mp3", "Eb3": "Ds3.mp3", "E3": "E3.mp3", "F3": "F3.mp3", "F#3": "Fs3.mp3", "G3": "G3.mp3", "Ab3": "Gs3.mp3", "A3": "A3.mp3", "Bb3": "As3.mp3", "B3": "B3.mp3",
+            "C2": "C2.mp3", "D2": "D2.mp3", "E2": "E2.mp3", "F2": "F2.mp3", "G2": "G2.mp3", "A2": "A2.mp3", "B2": "B2.mp3",
+            "C3": "C3.mp3", "D3": "D3.mp3", "E3": "E3.mp3", "F3": "F3.mp3", "G3": "G3.mp3", "A3": "A3.mp3", "B3": "B3.mp3",
             "C4": "C4.mp3", "D4": "D4.mp3", "E4": "E4.mp3", "G4": "G4.mp3"
         },
         attack: 0.05, 
@@ -130,26 +129,14 @@
         }
     }).connect(eq);
 
-    // 🎻 로딩 상태 체크 (버튼 텍스트 업데이트)
-    let totalSamples = 28; // 대략적인 샘플 수
-    let loadedSamples = 0;
-    Tone.Buffer.on('load', () => {
-        loadedSamples++;
-        const btn = document.getElementById('start-btn');
-        if(!cello.loaded) {
-            const progress = Math.min(99, Math.floor((loadedSamples / totalSamples) * 100));
-            btn.innerText = `조율 중... (${progress}%)`;
-        }
-    });
-
-    // 🎻 15초 이상 로딩 시 강제 활성화 (로딩 멈춤 방지)
+    // 🎻 강제 활성화 시스템 (로딩 멈춤 방어)
     setTimeout(() => {
         const btn = document.getElementById('start-btn');
         if(btn.disabled) {
             btn.disabled = false;
             btn.innerText = "조율 완료! 무대 입장 ✨";
         }
-    }, 15000);
+    }, 4000);
 
     function spawnTile(yPos) {
         const songNotes = songs[selected].p.split(',');
@@ -220,18 +207,18 @@
         const ty = e.clientY - rect.top;
         const lane = Math.floor(tx / (canvas.width / 4));
 
-        let target = tiles.find(t => !t.hit && t.y + t.h > canvas.height * 0.1); 
+        let target = tiles.find(t => !t.hit && t.y + t.h > canvas.height * 0.15); 
         
         if(target && target.lane === lane) {
             target.hit = true; score++;
             document.getElementById('score-display').innerText = score;
             laneGlow[lane] = 1.0;
             
-            // 🎻 라이브 레가토 (0.1초 크로스페이드)
+            // 🎻 라이브 레가토 (0.12초 오버랩)
             if (lastNote && lastNote !== target.note) {
-                cello.triggerRelease(lastNote, "+0.1"); 
+                cello.triggerRelease(lastNote, "+0.12"); 
             }
-            cello.triggerAttack(target.note, Tone.now(), 0.9);
+            cello.triggerAttack(target.note, Tone.now(), 0.95);
             lastNote = target.note;
         }
     });
