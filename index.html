@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cello Maestro V97 - Slur Seamless Edition</title>
+    <title>Cello Maestro V98 - Pure Solo Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         :root { --gold: #c5a059; --pink: #ff85c0; --pearl: #ffffff; --soft-pink: #ffeef4; }
@@ -47,9 +47,9 @@
 
 <div class="ui-layer">
     <div id="lobby">
-        <h1>🎻 Pure Cello Soloist V97 ✨</h1>
+        <h1>🎻 Pure Cello Soloist ✨</h1>
         <div id="song-list"></div>
-        <button id="start-btn" class="btn" disabled>슬러 질감 조율 중...</button>
+        <button id="start-btn" class="btn" disabled>순수 첼로 조율 중...</button>
     </div>
 
     <div id="game-ui">
@@ -60,14 +60,14 @@
     </div>
 
     <div id="result" style="display:none; text-align:center;">
-        <h1 style="font-size: 30px; color: var(--gold);">Live Maestro! ✨</h1>
+        <h1 style="font-size: 30px; color: var(--gold);">Authentic Bravo! ✨</h1>
         <div id="final-score" style="font-size: 85px; font-weight: 900; margin: 30px 0; color: var(--gold);">0</div>
         <button id="retry-btn" class="btn">다시 무대로 입장</button>
     </div>
 </div>
 
 <script>
-    // 🎻 V97: 20곡 원곡 풀 악보 (구간 반복 없음)
+    // 🎻 20곡 원곡 풀 악보 (그대로 유지)
     const songs = [
         { t: "Bach: Cello Suite No.1 Prelude", lv: "중", bpm: 80, p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,A3,G3,A3,E3,C3,E3,A3,G3,A3,E3,F#3,D3,A2,D3,F#3,A3,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,D4,G4,F#4,G4,D4,B3,G3,E3,B3,G4,F#4,G4,B3,E3,B3,G4,F#4,G4,B3,C#3,A#3,E4,D#4,E4,A#3,C#3,A#3,E4,D#4,E4,A#3,D3,B3,F#4,E4,F#4,B3,D3,B3,F#4,E4,F#4,B3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,F#2,D3,A3,G3,A3,D3,F#2,D3,A3,G3,A3,D3,G2,E3,B3,A3,B3,E3,G2,E3,B3,A3,B3,E3,G2,F#3,C4,B3,C4,F#3,G2,F#3,C4,B3,C4,F#3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,G1", time: 240 },
         { t: "Saint-Saëns: The Swan", lv: "하", bpm: 60, p: "G2,B2,D3,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,A2,G2,G2,B2,D3,G3,F#3,G3,A3,B3,A3,G3,E3,D3,B2,G2,B2,D3,G3,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,A2,B2,D3,A2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,D3,E3,G3,D3,C3,B2,A2,G2,D3,G3,B3,D4,C4,B3,A3,G3,B2,G2,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,E3,F#3,G3,A3,B3,C4,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2", time: 210 },
@@ -78,7 +78,7 @@
         { t: "Rachmaninoff: Vocalise", lv: "하", bpm: 50, p: "C#2,D2,C#2,B1,A1,B1,C#2,E2,A2,G#2,F#2,E2,D2,C#2,B1,A1,G#1,A1,B1,C#2,D2,E2,F#2,G#2,A2,B2,C#3,B2,A2,G#2,F#2,E2,D2,C#2,D2,E2,F#2,D2,B1,A1,G#1,A1,B1,C#2,A1,E2,A2,C#3,E3,C#3,A2,E2,A1,E1,A1,C#2,D2,E2,F#2,G#2,A2,B2,C#3,D3,C#3,B2,A2,G#2,F#2,E2,D2,C#2,B1,A1", time: 230 },
         { t: "Bach: Cello Suite No.2 Prelude", lv: "상", bpm: 76, p: "D2,F2,A2,D3,F3,E3,D3,C#3,D3,A2,Bb2,A2,G2,F2,G2,D2,F2,E2,D2,C#2,D2,A1,D2,F2,A2,D3,F3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,G3,A3,Bb3,C4,A3,G3,F3,E3,D3,C3,B2,C3,D3,E3,F3,G3,A3,Bb3,A3,G3,F3,E3,D3,A2,D2,F2,G2,A2,Bb2,C3,D3,E3,F3,G3,A3,Bb3,A3,G3,F3,E3,D3,C#3,D3,E2,F2,A2,D3", time: 220 },
         { t: "Schubert: Arpeggione", lv: "상", bpm: 84, p: "A2,C3,E3,A3,G3,F3,E3,D3,C3,B2,A2,G#2,A2,B2,C3,A2,D3,F3,A3,D4,C4,Bb3,A3,G3,F3,E3,D3,C#3,D3,E3,F3,D3,A2,C3,E3,A3,G3,F3,E3,D3,C3,B2,A2,G#2,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4,B3,A3,G3,F3,E3,D3,A2,E2,A1,C2,E2,A2,B2,C3,D3,E3,F3,E3,D3,C3,B2,A2,G#2,A2,E2,A1", time: 250 },
-        { t: "Bruch: Canzone for Cello", lv: "중", bpm: 66, p: "B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,B2,E3,G3,B3,E4,D4,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,E3,B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,E3,F#3,G3,A3,B3,C#4,D4,C#4,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,F#2,B1", time: 210 },
+        { t: "Bruch: Canzone", lv: "중", bpm: 66, p: "B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,B2,E3,G3,B3,E4,D4,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,E3,B2,D3,F#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,C#3,D3,E3,F#3,G3,A3,B3,C#4,D4,C#4,B3,A3,G3,F#3,E3,D3,C#3,B2,A#2,B2,F#2,B1", time: 210 },
         { t: "Tchaikovsky: Pezzo capriccioso", lv: "상", bpm: 88, p: "B1,E2,G2,B2,A2,G2,F#2,E2,D#2,E2,F#2,G2,A2,B2,C3,B2,A2,G2,F#2,E2,B1,E2,G2,B2,A2,G2,F#2,E2,D#2,E2,F#2,G2,B2,D3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,B1,A1,G1,F#1,E1,B0,E1,G1,B1,E2,F#2,G2,A2,B2,C3,D3,E3,F3,E3,D3,C3,B2,A2,G2,F#2,E2,D#2,E2,B1,E1", time: 230 },
         { t: "Popper: Serenade", lv: "하", bpm: 100, p: "G2,D3,G3,B3,A3,G3,F#3,G3,A3,D3,G2,D3,G3,B3,A3,G3,F#3,G3,A3,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,A3,G3,F#3,G3,A3,D3,G2,B2,D3,G3,B3,D4,C4,B3,A3,G3,F#3,G3,A3,G3,D3,G2,B2,D3,G3,A3,B3,C4,D4,E4,D4,C4,B3,A3,G3,F#3,G3,A3,G3,D3,B2,G2", time: 180 },
         { t: "Piazzolla: Libertango", lv: "상", bpm: 120, p: "A2,B2,C3,B2,A2,B2,C3,B2,A2,B2,C3,B2,A2,G2,F2,E2,F2,G2,A2,G2,F2,G2,A2,G2,F2,E2,D2,C2,D2,E2,F2,E2,D2,E2,F2,E2,D2,E2,F2,G2,A2,B2,C3,D3,E3,F3,G3,A3,G3,F3,E3,D3,C3,B2,A2,E2,A1,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4,B3,A3,G3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,B1,A1", time: 200 },
@@ -114,11 +114,9 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // 🎻 [V97 핵심] 리얼 슬러 스트로크 엔진 - 활 마찰음 복구 & 지수형 어택
-    const eq = new Tone.EQ3({ low: 9, mid: 4.8, high: 1.8 }).toDestination();
-    const compressor = new Tone.Compressor({ threshold: -35, ratio: 4.5 }).connect(eq);
-    const filter = new Tone.Filter(3200, "lowpass").connect(compressor);
-    const vibrato = new Tone.Vibrato({ frequency: 4.8, depth: 0.01 }).connect(filter); 
+    // 🎻 [V98 핵심] 안티 페달 사운드 엔진 - 모노 레가토 시스템
+    const eq = new Tone.EQ3({ low: 9, mid: 3, high: -2 }).toDestination();
+    const filter = new Tone.Filter(2800, "lowpass").connect(eq); // 🎻 선명하고 부드러운 첼로 톤
 
     cello = new Tone.Sampler({
         urls: { 
@@ -126,17 +124,18 @@
             "C3": "C3.mp3", "D3": "D3.mp3", "E3": "E3.mp3", "F3": "F3.mp3", "G3": "G3.mp3", "A3": "A3.mp3", "B3": "B3.mp3",
             "C4": "C4.mp3", "D4": "D4.mp3", "E4": "E4.mp3", "G4": "G4.mp3"
         },
-        attack: 0.2,   // 🎻 지수형 어택 느낌: 활이 현을 지그시 누르며 시작
-        release: 1.5,  // 풍부한 잔향 유지
+        attack: 0.12,  // 🎻 활이 현에 부드럽게 닿는 어택
+        release: 0.6,  // 🎻 페달 느낌 방지를 위해 잔향을 적절히 단축
         baseUrl: "https://gleitz.github.io/midi-js-soundfonts/MusyngKite/cello-mp3/",
         onload: () => { 
             const btn = document.getElementById('start-btn');
             btn.disabled = false;
-            btn.innerText = "리얼 슬러 대공연 입장 ✨"; 
+            btn.innerText = "리얼 첼로 독주회 입장 ✨"; 
         }
-    }).connect(vibrato);
+    }).connect(filter);
     
-    cello.maxPolyphony = 2; // 🎻 독주 첼로 텐션 유지
+    // 🎻 [V98 핵심] 동시 발음수 1로 제한 (페달 효과 원천 차단)
+    cello.maxPolyphony = 1;
 
     setTimeout(() => {
         const btn = document.getElementById('start-btn');
@@ -235,12 +234,9 @@
             document.getElementById('score-display').innerText = score;
             laneGlow[lane] = 1.0;
             
-            // 🎻 [V97 핵심] 리얼 슬러 스트로크: 0.25초 겹침 (Seamless Slur)
-            vibrato.depth = 0.008 + Math.random() * 0.012; 
-            vibrato.frequency = 4.5 + Math.random() * 1.5; 
-
+            // 🎻 [V98 핵심] 엄격한 모노 레가토: 이전 음 즉시 정지 후 새 음 재생
             if (lastNote && lastNote !== target.note) {
-                cello.triggerRelease(lastNote, "+0.25"); // 🎻 음이 겹치며 스며드는 첼로 고유 질감
+                cello.triggerRelease(lastNote, Tone.now()); 
             }
             cello.triggerAttack(target.note, Tone.now(), 0.9);
             lastNote = target.note;
