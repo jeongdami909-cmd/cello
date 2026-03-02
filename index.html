@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cello Maestro V87 - Hauser Live Edition</title>
+    <title>Cello Maestro V88 - Loading Recovery</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         :root { --gold: #c5a059; --pink: #ff85c0; --pearl: #ffffff; --soft-pink: #ffeef4; }
@@ -29,7 +29,8 @@
         .lv-하 { background: #b7e4c7; } .lv-중 { background: #ade8f4; } .lv-상 { background: #fca311; }
 
         .btn { width: 100%; padding: 22px; border-radius: 60px; border: none; font-size: 20px; font-weight: 900; background: var(--gold); color: #fff; cursor: pointer; pointer-events: auto; box-shadow: 0 8px 25px rgba(197, 160, 89, 0.3); transition: 0.2s; }
-        .btn:disabled { opacity: 0.5; cursor: wait; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: wait; background: #d1c1a5; }
         
         #game-ui { display: none; height: 100%; width: 100%; position: relative; }
         #heart-container { position: absolute; top: 65px; left: 25px; display: flex; gap: 4px; }
@@ -44,9 +45,9 @@
 
 <div class="ui-layer">
     <div id="lobby">
-        <h1>🎻 Hauser Live Archive ✨</h1>
+        <h1>🎻 Cello Live Concert ✨</h1>
         <div id="song-list"></div>
-        <button id="start-btn" class="btn" disabled>라이브 첼로 조율 중...</button>
+        <button id="start-btn" class="btn" disabled>조율 중... (0%)</button>
     </div>
 
     <div id="game-ui">
@@ -56,14 +57,14 @@
     </div>
 
     <div id="result" style="display:none; text-align:center;">
-        <h1 style="font-size: 30px; color: var(--gold);">Live Performance! ✨</h1>
+        <h1 style="font-size: 30px; color: var(--gold);">Live Bravo! ✨</h1>
         <div id="final-score" style="font-size: 85px; font-weight: 900; margin: 30px 0; color: var(--gold);">0</div>
         <button id="retry-btn" class="btn">다시 무대로 입장</button>
     </div>
 </div>
 
 <script>
-    // 🎻 20곡 원곡 데이터 (Hauser 스타일 아카이브)
+    // 🎻 20곡 리얼 스코어 아카이브
     const songs = [
         { t: "Bach: Cello Suite No.1 Prelude", lv: "중", p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,A3,G3,A3,E3,C3,E3,A3,G3,A3,E3,F#3,D3,A2,D3,F#3,A3,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,D4,G4,F#4,G4,D4,B3,G3,E3,B3,G4,F#4,G4,B3,E3,B3,G4,F#4,G4,B3,C#3,A#3,E4,D#4,E4,A#3,C#3,A#3,E4,D#4,E4,A#3,D3,B3,F#4,E4,F#4,B3,D3,B3,F#4,E4,F#4,B3,G2,D3,B3,A3,B3,D3,G2", time: 200 },
         { t: "Saint-Saëns: The Swan", lv: "하", p: "G2,B2,D3,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,A2,G2,G2,B2,D3,G3,F#3,G3,A3,B3,A3,G3,E3,D3,B2,G2,B2,D3,G3,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,A2,B2,D3,A2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,D3,E3,G3,D3,C3,B2,A2,G2,D3,G3,B3,D4,C4,B3,A3,G3,B2,G2", time: 180 },
@@ -110,7 +111,7 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // 🎻 [V87 핵심] 라이브 첼로 엔진 - 에코 완전 제거, 고음 복구
+    // 🎻 [V87] 라이브 첼로 엔진 - 에코 제거 및 촘촘한 샘플링
     const eq = new Tone.EQ3({ low: 10, mid: 2, high: 2 }).toDestination(); 
 
     cello = new Tone.Sampler({
@@ -119,8 +120,8 @@
             "C3": "C3.mp3", "C#3": "Cs3.mp3", "D3": "D3.mp3", "Eb3": "Ds3.mp3", "E3": "E3.mp3", "F3": "F3.mp3", "F#3": "Fs3.mp3", "G3": "G3.mp3", "Ab3": "Gs3.mp3", "A3": "A3.mp3", "Bb3": "As3.mp3", "B3": "B3.mp3",
             "C4": "C4.mp3", "D4": "D4.mp3", "E4": "E4.mp3", "G4": "G4.mp3"
         },
-        attack: 0.05, // 반응 속도 상향 (늘어짐 방지)
-        release: 0.8, // 라이브 여운
+        attack: 0.05, 
+        release: 0.8,
         baseUrl: "https://gleitz.github.io/midi-js-soundfonts/MusyngKite/cello-mp3/",
         onload: () => { 
             const btn = document.getElementById('start-btn');
@@ -128,6 +129,27 @@
             btn.innerText = "라이브 대공연 입장 ✨"; 
         }
     }).connect(eq);
+
+    // 🎻 로딩 상태 체크 (버튼 텍스트 업데이트)
+    let totalSamples = 28; // 대략적인 샘플 수
+    let loadedSamples = 0;
+    Tone.Buffer.on('load', () => {
+        loadedSamples++;
+        const btn = document.getElementById('start-btn');
+        if(!cello.loaded) {
+            const progress = Math.min(99, Math.floor((loadedSamples / totalSamples) * 100));
+            btn.innerText = `조율 중... (${progress}%)`;
+        }
+    });
+
+    // 🎻 15초 이상 로딩 시 강제 활성화 (로딩 멈춤 방지)
+    setTimeout(() => {
+        const btn = document.getElementById('start-btn');
+        if(btn.disabled) {
+            btn.disabled = false;
+            btn.innerText = "조율 완료! 무대 입장 ✨";
+        }
+    }, 15000);
 
     function spawnTile(yPos) {
         const songNotes = songs[selected].p.split(',');
@@ -149,7 +171,7 @@
         laneGlow.forEach((g, i) => {
             if(g > 0) {
                 let grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
-                grad.addColorStop(0, `rgba(197, 160, 89, ${g * 0.4})`);
+                grad.addColorStop(0, `rgba(197, 160, 89, ${g * 0.3})`);
                 grad.addColorStop(1, "rgba(255, 255, 255, 0)");
                 ctx.fillStyle = grad; ctx.fillRect(i * canvas.width/4, 0, canvas.width/4, canvas.height);
                 laneGlow[i] -= 0.05;
@@ -205,7 +227,7 @@
             document.getElementById('score-display').innerText = score;
             laneGlow[lane] = 1.0;
             
-            // 🎻 라이브 레가토 (0.1초 크로스페이드로 늘어짐 해결)
+            // 🎻 라이브 레가토 (0.1초 크로스페이드)
             if (lastNote && lastNote !== target.note) {
                 cello.triggerRelease(lastNote, "+0.1"); 
             }
