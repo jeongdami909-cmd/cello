@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cello Maestro V94 - Hauser Real Resonance</title>
+    <title>Cello Maestro V95 - Legato Stroke Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         :root { --gold: #c5a059; --pink: #ff85c0; --pearl: #ffffff; --soft-pink: #ffeef4; }
@@ -47,9 +47,9 @@
 
 <div class="ui-layer">
     <div id="lobby">
-        <h1>🎻 Pure Cello Soloist V94 ✨</h1>
+        <h1>🎻 Pure Cello Soloist V95 ✨</h1>
         <div id="song-list"></div>
-        <button id="start-btn" class="btn" disabled>리얼 현의 질감을 조율 중...</button>
+        <button id="start-btn" class="btn" disabled>리얼 스트로크 조율 중...</button>
     </div>
 
     <div id="game-ui">
@@ -60,14 +60,14 @@
     </div>
 
     <div id="result" style="display:none; text-align:center;">
-        <h1 style="font-size: 30px; color: var(--gold);">Greatest Performance! ✨</h1>
+        <h1 style="font-size: 30px; color: var(--gold);">Live Bravo! ✨</h1>
         <div id="final-score" style="font-size: 85px; font-weight: 900; margin: 30px 0; color: var(--gold);">0</div>
         <button id="retry-btn" class="btn">다시 무대로 입장</button>
     </div>
 </div>
 
 <script>
-    // 🎻 V94: 구간 반복 없는 20곡 풀 아카이브
+    // 🎻 소희님 전용 20곡 풀 아카이브
     const songs = [
         { t: "Bach: Cello Suite No.1 Prelude", lv: "중", bpm: 80, p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,A3,G3,A3,E3,C3,E3,A3,G3,A3,E3,F#3,D3,A2,D3,F#3,A3,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,D3,G3,B3,D4,G4,F#4,G4,D4,B3,G3,E3,B3,G4,F#4,G4,B3,E3,B3,G4,F#4,G4,B3,C#3,A#3,E4,D#4,E4,A#3,C#3,A#3,E4,D#4,E4,A#3,D3,B3,F#4,E4,F#4,B3,D3,B3,F#4,E4,F#4,B3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,F#2,D3,A3,G3,A3,D3,F#2,D3,A3,G3,A3,D3,G2,E3,B3,A3,B3,E3,G2,E3,B3,A3,B3,E3,G2,F#3,C4,B3,C4,F#3,G2,F#3,C4,B3,C4,F#3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,G1", time: 240 },
         { t: "Saint-Saëns: The Swan", lv: "하", bpm: 60, p: "G2,B2,D3,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,A2,G2,G2,B2,D3,G3,F#3,G3,A3,B3,A3,G3,E3,D3,B2,G2,B2,D3,G3,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,A2,B2,D3,A2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,D3,E3,G3,D3,C3,B2,A2,G2,D3,G3,B3,D4,C4,B3,A3,G3,B2,G2,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,E3,F#3,G3,A3,B3,C4,D4,C4,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2", time: 210 },
@@ -114,11 +114,10 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // 🎻 [V94 핵심] 리얼 첼로 엔진 - 오르간 느낌 삭제, 현의 질감 보강
-    const eq = new Tone.EQ3({ low: 8, mid: 3, high: 2 }).toDestination(); 
-    const filter = new Tone.Filter(3500, "lowpass").connect(eq); 
-    
-    // 오가닉 비브라토: 아주 섬세하고 깊지 않은 울림 (depth 0.012)
+    // 🎻 [V95 핵심] 리얼 레가토 엔진 - 목재 공명 & 오버랩 강화
+    const eq = new Tone.EQ3({ low: 8, mid: 3.5, high: 2.2 }).toDestination();
+    const compressor = new Tone.Compressor({ threshold: -28, ratio: 3.5 }).connect(eq);
+    const filter = new Tone.Filter(3500, "lowpass").connect(compressor);
     const vibrato = new Tone.Vibrato({ frequency: 5.0, depth: 0.012 }).connect(filter); 
 
     cello = new Tone.Sampler({
@@ -127,17 +126,18 @@
             "C3": "C3.mp3", "D3": "D3.mp3", "E3": "E3.mp3", "F3": "F3.mp3", "G3": "G3.mp3", "A3": "A3.mp3", "B3": "B3.mp3",
             "C4": "C4.mp3", "D4": "D4.mp3", "E4": "E4.mp3", "G4": "G4.mp3"
         },
-        attack: 0.1,  // 지수형 어택 느낌을 위한 약간의 여유 (건반 방지)
-        release: 0.7, // 선명한 소리를 위해 오르간 식의 긴 여운 축소
+        attack: 0.1,  
+        release: 1.2, 
         baseUrl: "https://gleitz.github.io/midi-js-soundfonts/MusyngKite/cello-mp3/",
         onload: () => { 
             const btn = document.getElementById('start-btn');
             btn.disabled = false;
-            btn.innerText = "리얼 첼로 대공연 입장 ✨"; 
+            btn.innerText = "리얼 레가토 공연 입장 ✨"; 
         }
     }).connect(vibrato);
+    
+    cello.maxPolyphony = 4; // 🎻 음이 자연스럽게 겹치도록 설정
 
-    // 강제 활성화 보조 로직
     setTimeout(() => {
         const btn = document.getElementById('start-btn');
         if(btn.disabled) { btn.disabled = false; btn.innerText = "조율 완료! 무대 입장 ✨"; }
@@ -235,9 +235,12 @@
             document.getElementById('score-display').innerText = score;
             laneGlow[lane] = 1.0;
             
-            // 🎻 V94 모노 레가토 (0.05s 오버랩으로 오르간식 화음 겹침 방지)
+            // 🎻 [V95 핵심] 비브라토 랜덤화 & 오버랩 레가토 로직
+            vibrato.depth = Math.random() * 0.015 + 0.01; 
+            vibrato.frequency = 4 + Math.random() * 2; 
+
             if (lastNote && lastNote !== target.note) {
-                cello.triggerRelease(lastNote, "+0.05"); 
+                cello.triggerRelease(lastNote, "+0.2"); // 🎻 0.2초 겹침으로 건반 느낌 완전 제거
             }
             cello.triggerAttack(target.note, Tone.now(), 0.95);
             lastNote = target.note;
