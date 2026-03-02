@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cello Maestro V80 - Silk Legato Edition</title>
+    <title>Cello Maestro V81 - Perfect Touch</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         :root { --gold: #c5a059; --pink: #ff85c0; --pearl: #ffffff; --soft-pink: #ffeef4; }
@@ -14,6 +14,7 @@
             background: linear-gradient(135deg, #ffffff 0%, #fffafa 50%, #fff9e6 100%); 
             width: 100%; height: 100%; max-width: 500px;
             box-shadow: 0 0 50px rgba(197, 160, 89, 0.15);
+            touch-action: none;
         }
 
         .ui-layer { position: absolute; top: 0; left: 50%; width: 100%; height: 100%; max-width: 500px; transform: translateX(-50%); pointer-events: none; z-index: 10; }
@@ -22,9 +23,9 @@
         h1 { text-align: center; font-size: 24px; font-weight: 900; color: var(--gold); text-shadow: 1px 1px 2px rgba(0,0,0,0.05); margin-bottom: 25px; }
         #song-list { flex: 1; overflow-y: auto; background: rgba(255, 255, 255, 0.6); border-radius: 25px; padding: 10px; margin-bottom: 20px; border: 1px solid var(--soft-pink); }
         .song-item { padding: 16px; border-radius: 15px; margin-bottom: 10px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; transition: 0.2s; }
-        .song-item.active { background: #fffdf5; border-color: var(--gold); color: var(--gold); font-weight: 900; box-shadow: 0 4px 12px rgba(197, 160, 89, 0.1); }
+        .song-item.active { background: #fffdf5; border-color: var(--gold); color: var(--gold); font-weight: 900; }
         
-        .lv-badge { font-size: 11px; padding: 4px 10px; border-radius: 12px; color: #fff; font-weight: 900; }
+        .lv-badge { font-size: 10px; padding: 4px 10px; border-radius: 12px; color: #fff; font-weight: 900; }
         .lv-하 { background: #b7e4c7; } .lv-중 { background: #ade8f4; } .lv-상 { background: #fca311; }
 
         .btn { width: 100%; padding: 22px; border-radius: 60px; border: none; font-size: 20px; font-weight: 900; background: var(--gold); color: #fff; cursor: pointer; pointer-events: auto; box-shadow: 0 8px 25px rgba(197, 160, 89, 0.3); }
@@ -43,9 +44,9 @@
 
 <div class="ui-layer">
     <div id="lobby">
-        <h1>🎻 Cello Archive V80 ✨</h1>
+        <h1>🎻 Perfect Cello Maestro ✨</h1>
         <div id="song-list"></div>
-        <button id="start-btn" class="btn" disabled>협주곡 첼로 조율 중...</button>
+        <button id="start-btn" class="btn" disabled>첼로 영혼 로딩 중...</button>
     </div>
 
     <div id="game-ui">
@@ -55,17 +56,17 @@
     </div>
 
     <div id="result" style="display:none; text-align:center;">
-        <h1 style="font-size: 28px; color: var(--gold);">Greatest Performance! ✨</h1>
+        <h1 style="font-size: 28px; color: var(--gold);">Authentic Bravo! ✨</h1>
         <div id="final-score" style="font-size: 80px; font-weight: 900; margin: 25px 0; color: var(--gold);">0</div>
         <button id="retry-btn" class="btn">다시 무대로 입장</button>
     </div>
 </div>
 
 <script>
-    // 🎻 20곡 리얼 스코어 아카이브 (3분 이상 전개)
+    // 🎻 20곡 원곡 악보 데이터 (V80 데이터 승계)
     const songs = [
-        { t: "Bach: Cello Suite No.1 Prelude", lv: "중", p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,C4,B3,C4,E3,C3,E3,C4,B3,C4,E3,C3,F#3,C4,B3,C4,F#3,C3,F#3,C4,B3,C4,F#3,B2,G3,B3,A3,B3,G3,B2,G3,B3,A3,B3,G3,A2,A3,C4,B3,C4,A3,A2,A3,C4,B3,C4,A3,D2,A3,C4,B3,C4,A3,D2,A3,C4,B3,C4,A3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,E3,B3,G4,F#4,G4,B3,E3,B3,G4,F#4,G4,B3,C#3,A#3,E4,D#4,E4,A#3,C#3,A#3,E4,D#4,E4,A#3,D3,B3,F#4,E4,F#4,B3,D3,B3,F#4,E4,F#4,B3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3", time: 180 },
-        { t: "Vivaldi: Concerto for 3 Violins", lv: "상", p: "F4,A4,C5,F5,A5,C6,A5,F5,C5,A4,F4,F5,F5,C5,A4,F4,C5,F5,A5,C6,A5,F5,C5,A4,F4,C5,F5,F5,G5,A5,Bb5,C6,Bb5,A5,G5,F5,E5,D5,C5,Bb4,A4,G4,F4,C5,F5,A5,C6,D6,C6,Bb5,A5,G5,F5,E5,D5,C5,Bb4,A4,G4,F4,G4,A4,Bb4,C5,D5,E5,F5,G5,A5,B5,C6,D6,E6,F6,G6,A6,G6,F6,E6,D6,C6,Bb5,A5,G5,F5,E5,D5,C5,Bb4,A4,G4,F4,C5,F5,A5,C6,F6,A6,C7,A6,F6,C6,A5,F5,C5,A4,F4,C5,F5,A5,C6,Bb5,A5,G5,F5,E5,D5,C5,B4,C5,D5,E5,F5,G5,A5,B5,C6,D6,E6,F6,G6,A6,B6,C7", time: 190 },
+        { t: "Bach: Cello Suite No.1 Prelude", lv: "중", p: "G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3,C3,E3,C4,B3,C4,E3,C3,E3,C4,B3,C4,E3,C3,F#3,C4,B3,C4,F#3,C3,F#3,C4,B3,C4,F#3,B2,G3,B3,A3,B3,G3,B2,G3,B3,A3,B3,G3,A2,A3,C4,B3,C4,A3,A2,A3,C4,B3,C4,A3,D2,A3,C4,B3,C4,A3,D2,A3,C4,B3,C4,A3,G2,D3,B3,A3,B3,D3,G2,D3,B3,A3,B3,D3", time: 180 },
+        { t: "Vivaldi: Concerto for 3 Violins", lv: "상", p: "F4,A4,C5,F5,A5,C6,A5,F5,C5,A4,F4,C5,F5,A5,C6,A5,F5,C5,A4,F4,C5,F5,F5,G5,A5,Bb5,C6,Bb5,A5,G5,F5,E5,D5,C5,Bb4,A4,G4,F4,C5,F5,A5,C6,D6,C6,Bb5,A5,G5,F5,E5,D5,C5,Bb4,A4,G4,F4,G4,A4,Bb4,C5,D5,E5,F5,G5,A5,B5,C6,D6,E6,F6,G6,A6,G6,F6,E6,D6,C6,Bb5,A5,G5,F5,E5,D5,C5,Bb4,A4,G4,F4,C5,F5,A5,C6,F6,A6,C7,A6,F6,C6,A5,F5,C5,A4,F4,C5,F5,A5,C6", time: 190 },
         { t: "Saint-Saëns: The Swan", lv: "하", p: "G2,B2,D3,G3,F#3,E3,D3,B2,A2,G2,A2,B2,D3,A2,G2,G2,B2,D3,G3,F#3,G3,A3,B3,A3,G3,E3,D3,B2,G2,B2,D3,G3,B3,A3,G3,F#3,E3,D3,C3,B2,A2,G2,A2,B2,D3,A2,G2,C3,E3,G3,C4,B3,A3,G3,F3,E3,D3,C3,D3,E3,G3,D3,C3", time: 160 },
         { t: "Elgar: Cello Concerto (1st Mov)", lv: "상", p: "E2,B2,E3,F#3,G3,E2,B2,E3,F#3,G3,A3,B3,C4,B3,A3,G3,F#3,E3,D#3,E3,F#3,G3,A3,B3,E4,D#4,E4,B3,G3,E3,B2,E2,B2,E3,F#3,G3,A3,B3,C4,D4,E4,D4,C4,B3,A3,G3,F#3,E3,F#3,G3,A3,B3,C4,A3,F#3,D3,B2,G2,E2", time: 200 },
         { t: "Dinicu: Hora Staccato", lv: "상", p: "A3,A3,A3,A3,G3,F3,E3,D3,C3,B2,A2,G2,F2,E2,D2,C2,D2,E2,F2,G2,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4,D4,E4,F4,G4,A4,G4,F4,E4,D4,C4,B3,A3,G3,F3,E3,D3,C3,B2,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4", time: 150 },
@@ -83,7 +84,7 @@
         { t: "Bach: Air on G String", lv: "하", p: "F#4,F#3,E4,E3,D4,D3,C#4,C#3,B3,A3,G3,F#3,E3,D3,C#3,B2,A2,G2,F#2,E2,D2,E2,F#2,G2,A2,B2,C#3,D3,E3,F#3,G3,A3,B3,C#4,D4,E4,F#4,G4,A4,B4,C#5,D5,E5,F#5,G5,A5,B5,C6", time: 155 },
         { t: "Mendelssohn: Song without Words", lv: "중", p: "D3,F3,A3,D4,C#4,B3,A3,G3,F3,E3,D3,A2,D3,F3,A3,D4,F4,E4,D4,C#4,D4,A3,G3,F3,E3,D3,C3,B2,A2,G2,A2,B2,C3,D3,E3,F3,G3,A3,B3,C4,D4,E4,F4,G4,A4,G4,F4,E4,D4,A3,D3", time: 170 },
         { t: "Massenet: Méditation de Thaïs", lv: "하", p: "D3,F#3,A3,D4,F#4,E4,D4,C#4,B3,A3,B3,C#4,D4,F#3,G3,A3,D3,F#3,A3,D4,F#4,A4,G4,F#4,E4,D4,C#4,D4,E4,A3,D4,F#4,A4,D5,C#5,B4,A4,G4,F#4,E4,D4,F#4,E4,D4", time: 180 },
-        { t: "Mozart: Twinkle Variations", lv: "하", p: "C3,C3,G3,G3,A3,A3,G3,F3,F3,E3,E3,D3,D3,C3,G3,G3,F3,F3,E3,E3,D3,G3,G3,F3,F3,E3,E3,D3,C3,C3,G3,G3,A3,A3,G3,F3,F3,E3,E3,D3,D3,C3,C4,G4,C4,G4,A4,F4,A4,F4,G4,E4,G4,E4,F4,D4,F4,D4,C4", time: 140 }
+        { t: "Sarasate: Zigeunerweisen (Finale)", lv: "상", p: "C4,D4,Eb4,G4,C5,B4,C5,D5,G4,Eb4,D4,C4,B3,G3,C4,D4,Eb4,F4,G4,Ab4,B4,C5,B4,Ab4,G4,F4,Eb4,D4,C4,G3,C4,D4,Eb4,F4,G4,C5,Eb5,D5,C5,B4,C5,G4,Eb4,C4,G3,Ab3,B3,C4,D4,Eb4,F4,G4,Ab4,B4,C5,D5,Eb5,F5,G5,A5,B5,C6", time: 120 }
     ];
 
     const canvas = document.getElementById('gameCanvas');
@@ -97,7 +98,7 @@
         let idx = notes.indexOf(note);
         if (idx === -1) idx = 15;
         let lane = Math.floor((idx / notes.length) * 4);
-        if (lane === prevLane) lane = (lane + 1) % 4; // 지그재그 로직
+        if (lane === prevLane) lane = (lane + 1) % 4;
         prevLane = lane;
         return Math.max(0, Math.min(3, lane));
     }
@@ -109,9 +110,9 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // 🎻 사운드 엔진: 웅웅거림 없는 클린 레가토 첼로 (지피티 튜닝)
-    const eq = new Tone.EQ3({ low: 8, mid: 2, high: -4 }).toDestination();
-    const filter = new Tone.Filter(3000, "lowpass").connect(eq);
+    // 🎻 사운드 엔진: 지피티 조언 반영 (에코 최소화, 오버랩 레가토)
+    const eq = new Tone.EQ3({ low: 7, mid: 2, high: -5 }).toDestination();
+    const filter = new Tone.Filter(2800, "lowpass").connect(eq);
     
     cello = new Tone.Sampler({
         urls: { 
@@ -121,7 +122,7 @@
             "C5": "C5.mp3"
         },
         attack: 0.05,
-        release: 0.8, // 뭉개지지 않으면서 부드러운 여운
+        release: 0.8,
         baseUrl: "https://gleitz.github.io/midi-js-soundfonts/MusyngKite/cello-mp3/",
         onload: () => { 
             const btn = document.getElementById('start-btn');
@@ -140,12 +141,7 @@
 
     function updateHearts() {
         const container = document.getElementById('heart-container');
-        container.innerHTML = "";
-        for(let i=0; i<lives; i++) {
-            const h = document.createElement('span');
-            h.className = "heart"; h.innerText = "🩷";
-            container.appendChild(h);
-        }
+        container.innerHTML = "🩷".repeat(lives);
     }
 
     function animate() {
@@ -213,22 +209,24 @@
         const ty = e.clientY - rect.top;
         const lane = Math.floor(tx / (canvas.width / 4));
 
-        let target = tiles.find(t => !t.hit && t.y + t.h > canvas.height * 0.4);
+        // 🎻 타겟 타일 찾기: 현재 화면에서 가장 아래에 있는 미타격 타일 (판정 범위 대폭 상향)
+        let target = tiles.find(t => !t.hit && t.y + t.h > canvas.height * 0.15); 
+        
         if(target && target.lane === lane) {
             target.hit = true; score++;
             document.getElementById('score-display').innerText = score;
             laneGlow[lane] = 1.0;
             for(let i=0; i<15; i++) particles.push({ x: tx, y: ty, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12, life: 1.0 });
             
-            // 🎻 지피티 조언 반영: 살짝 겹치는 릴리즈로 완벽한 레가토 구현
+            // 🎻 실크 레가토: 이전 음 0.08초 딜레이 릴리즈
             if (lastNote && lastNote !== target.note) {
                 cello.triggerRelease(lastNote, "+0.08"); 
             }
-            cello.triggerAttack(target.note, Tone.now(), Math.random()*0.2 + 0.8);
+            cello.triggerAttack(target.note, Tone.now(), Math.random()*0.2 + 0.85);
             lastNote = target.note;
 
         } else {
-            lives--; updateHearts(); if(lives <= 0) endConcert(false);
+            // 빈 공간 클릭 시 즉시 하트 감소 방지 (실제 미스만 처리)
         }
     });
 
@@ -259,13 +257,16 @@
         updateHearts();
         
         const lv = songs[selected].lv;
-        if(lv === "하") { speed = 3.2; accel = 0.00004; }
-        else if(lv === "중") { speed = 4.2; accel = 0.0001; }
-        else { speed = 5.4; accel = 0.0002; }
+        if(lv === "하") { speed = 3.0; accel = 0.00003; }
+        else if(lv === "중") { speed = 4.0; accel = 0.00008; }
+        else { speed = 5.2; accel = 0.0002; }
 
         document.getElementById('lobby').style.display = 'none';
         document.getElementById('game-ui').style.display = 'block';
+        
+        // 🎻 타일 초기 생성 최적화
         for(let i=0; i<5; i++) spawnTile(canvas.height - (i + 1) * (canvas.height/4));
+        
         animate();
     };
     document.getElementById('retry-btn').onclick = () => location.reload();
